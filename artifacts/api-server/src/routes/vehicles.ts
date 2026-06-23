@@ -65,7 +65,7 @@ router.post("/", requireAuth, requireAdmin, async (req: Request, res: Response) 
 });
 
 router.get("/:id", requireAuth, async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(String(req.params.id));
   const vehicle = await getVehicleWithDetails(id);
   if (!vehicle) {
     res.status(404).json({ error: "Vehicle not found" });
@@ -75,7 +75,7 @@ router.get("/:id", requireAuth, async (req: Request, res: Response) => {
 });
 
 router.put("/:id", requireAuth, requireAdmin, async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(String(req.params.id));
   const { plate, model, imei, clientId } = req.body as { plate: string; model: string; imei: string; clientId?: number };
 
   const [updated] = await db
@@ -94,7 +94,7 @@ router.put("/:id", requireAuth, requireAdmin, async (req: Request, res: Response
 });
 
 router.delete("/:id", requireAuth, requireAdmin, async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(String(req.params.id));
   await db.delete(vehiclesTable).where(eq(vehiclesTable.id, id));
   res.status(204).end();
 });

@@ -17,7 +17,7 @@ const ALERT_META: Record<string, { icon: React.ReactNode; label: string; color: 
 export default function Alerts() {
   const qc = useQueryClient();
   const [unreadOnly, setUnreadOnly] = useState(false);
-  const { data: alerts = [], isLoading } = useListAlerts({ params: { unreadOnly } });
+  const { data: alerts = [], isLoading } = useListAlerts({ unreadOnly });
   const markRead = useMarkAlertRead();
 
   async function handleMarkRead(id: number) {

@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { LivePosition } from '@workspace/api-client-react/src/generated/api.schemas';
+import type { LivePosition } from '@workspace/api-client-react';
 import { useSocket } from '@/hooks/use-socket';
 import { useQueryClient } from '@tanstack/react-query';
 import { getGetLivePositionsQueryKey } from '@workspace/api-client-react';

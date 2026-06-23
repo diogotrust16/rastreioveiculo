@@ -56,9 +56,10 @@ export default function Tracking() {
   const [histFrom, setHistFrom] = useState('');
   const [histTo, setHistTo] = useState('');
   const [histEnabled, setHistEnabled] = useState(false);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: history = [] } = useGetPositionHistory(
-    { params: { vehicleId: parseInt(histVehicle), from: histFrom || undefined, to: histTo || undefined } },
-    { query: { enabled: histEnabled && !!histVehicle } }
+    { vehicleId: parseInt(histVehicle) || 0, from: histFrom || undefined, to: histTo || undefined },
+    { query: { enabled: histEnabled && !!histVehicle } as any }
   );
 
   useEffect(() => {

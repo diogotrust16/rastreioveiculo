@@ -36,7 +36,7 @@ router.post("/", requireAuth, requireAdmin, async (req: Request, res: Response) 
 });
 
 router.get("/:id", requireAuth, async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(String(req.params.id));
   const [client] = await db
     .select({
       id: clientsTable.id,
@@ -59,7 +59,7 @@ router.get("/:id", requireAuth, async (req: Request, res: Response) => {
 });
 
 router.put("/:id", requireAuth, requireAdmin, async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(String(req.params.id));
   const { name, document, phone } = req.body as { name: string; document?: string; phone?: string };
 
   const [client] = await db
@@ -76,7 +76,7 @@ router.put("/:id", requireAuth, requireAdmin, async (req: Request, res: Response
 });
 
 router.delete("/:id", requireAuth, requireAdmin, async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(String(req.params.id));
   await db.delete(clientsTable).where(eq(clientsTable.id, id));
   res.status(204).end();
 });

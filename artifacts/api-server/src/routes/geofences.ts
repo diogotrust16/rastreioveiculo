@@ -43,7 +43,7 @@ router.post("/", requireAuth, async (req: Request, res: Response) => {
 });
 
 router.put("/:id", requireAuth, async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(String(req.params.id));
   const { vehicleId, name, latitude, longitude, radius } = req.body as {
     vehicleId: number;
     name: string;
@@ -68,7 +68,7 @@ router.put("/:id", requireAuth, async (req: Request, res: Response) => {
 });
 
 router.delete("/:id", requireAuth, async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(String(req.params.id));
   await db.delete(geofencesTable).where(eq(geofencesTable.id, id));
   res.status(204).end();
 });

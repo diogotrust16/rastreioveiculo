@@ -28,7 +28,7 @@ router.get("/", requireAuth, async (req: Request, res: Response) => {
 });
 
 router.patch("/:id/read", requireAuth, async (req: Request, res: Response) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(String(req.params.id));
   const [alert] = await db
     .update(alertsTable)
     .set({ read: true })
