@@ -1,19 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useListVehicles, useGetLivePositions, useGetPositionHistory, getGetLivePositionsQueryKey } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSocket } from '@/hooks/use-socket';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Navigation, Clock, Zap, Wifi, WifiOff, History, Crosshair } from 'lucide-react';
+import { Clock, Zap, Wifi, WifiOff, History } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
-// Fix default marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png',
@@ -56,7 +55,6 @@ export default function Tracking() {
   const [histFrom, setHistFrom] = useState('');
   const [histTo, setHistTo] = useState('');
   const [histEnabled, setHistEnabled] = useState(false);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const { data: history = [] } = useGetPositionHistory(
     { vehicleId: parseInt(histVehicle) || 0, from: histFrom || undefined, to: histTo || undefined },
     { query: { enabled: histEnabled && !!histVehicle } as any }
@@ -85,28 +83,27 @@ export default function Tracking() {
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden">
-      {/* Sidebar */}
       <div className="w-80 border-r border-border bg-card flex flex-col overflow-hidden shrink-0">
         <div className="p-4 border-b border-border">
           <div className="flex gap-2 mb-3">
             <Button size="sm" variant={mode === 'live' ? 'default' : 'outline'} onClick={() => setMode('live')} className="flex-1 gap-1.5 text-xs">
-              <Wifi className="w-3.5 h-3.5" /> Live
+              <Wifi className="w-3.5 h-3.5" /> Ao Vivo
             </Button>
             <Button size="sm" variant={mode === 'history' ? 'default' : 'outline'} onClick={() => setMode('history')} className="flex-1 gap-1.5 text-xs">
-              <History className="w-3.5 h-3.5" /> History
+              <History className="w-3.5 h-3.5" /> Histórico
             </Button>
           </div>
           {mode === 'history' && (
             <div className="space-y-2 text-xs">
               <Select value={histVehicle} onValueChange={setHistVehicle}>
-                <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Select vehicle" /></SelectTrigger>
+                <SelectTrigger className="h-8 text-xs"><SelectValue placeholder="Selecionar veículo" /></SelectTrigger>
                 <SelectContent>
                   {(vehicles as any[]).map(v => <SelectItem key={v.id} value={v.id.toString()}>{v.plate} — {v.model}</SelectItem>)}
                 </SelectContent>
               </Select>
               <Input type="datetime-local" value={histFrom} onChange={e => setHistFrom(e.target.value)} className="h-8 text-xs" />
               <Input type="datetime-local" value={histTo} onChange={e => setHistTo(e.target.value)} className="h-8 text-xs" />
-              <Button size="sm" className="w-full h-8 text-xs" onClick={() => setHistEnabled(true)} disabled={!histVehicle}>Show Route</Button>
+              <Button size="sm" className="w-full h-8 text-xs" onClick={() => setHistEnabled(true)} disabled={!histVehicle}>Exibir Rota</Button>
             </div>
           )}
         </div>
@@ -114,9 +111,9 @@ export default function Tracking() {
         <div className="flex-1 overflow-y-auto">
           {mode === 'live' && (
             isLoading ? (
-              <div className="p-4 text-sm text-muted-foreground">Loading...</div>
+              <div className="p-4 text-sm text-muted-foreground">Carregando...</div>
             ) : liveList.length === 0 ? (
-              <div className="p-4 text-sm text-muted-foreground">No active positions</div>
+              <div className="p-4 text-sm text-muted-foreground">Nenhuma posição ativa</div>
             ) : liveList.map(v => (
               <button
                 key={v.vehicleId}
@@ -127,14 +124,14 @@ export default function Tracking() {
                   <span className="font-mono font-semibold text-sm">{v.plate}</span>
                   <Badge variant="outline" className={`text-xs ${v.status === 'ONLINE' ? 'text-emerald-400 border-emerald-500/30' : 'text-muted-foreground'}`}>
                     {v.status === 'ONLINE' ? <Wifi className="w-2.5 h-2.5 mr-1" /> : <WifiOff className="w-2.5 h-2.5 mr-1" />}
-                    {v.status}
+                    {v.status === 'ONLINE' ? 'Online' : 'Offline'}
                   </Badge>
                 </div>
                 <p className="text-xs text-muted-foreground">{v.model}</p>
                 {v.speed != null && (
                   <div className="flex items-center gap-3 mt-1.5 text-xs text-muted-foreground">
                     <span className="flex items-center gap-1"><Zap className="w-3 h-3" /> {Math.round(v.speed)} km/h</span>
-                    <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {formatDistanceToNow(new Date(v.updatedAt), { addSuffix: true })}</span>
+                    <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> {formatDistanceToNow(new Date(v.updatedAt), { addSuffix: true, locale: ptBR })}</span>
                   </div>
                 )}
               </button>
@@ -142,7 +139,7 @@ export default function Tracking() {
           )}
           {mode === 'history' && histEnabled && (history as any[]).length > 0 && (
             <div className="p-3 text-xs text-muted-foreground">
-              <p className="font-medium text-foreground mb-1">{(history as any[]).length} positions</p>
+              <p className="font-medium text-foreground mb-1">{(history as any[]).length} posições</p>
               <p>{format(new Date((history as any[])[0].createdAt), 'dd/MM/yyyy HH:mm')} → {format(new Date((history as any[])[(history as any[]).length - 1].createdAt), 'HH:mm')}</p>
             </div>
           )}
@@ -152,17 +149,16 @@ export default function Tracking() {
           <div className="p-4 border-t border-border bg-muted/20 text-xs space-y-2">
             <p className="font-semibold text-sm">{selected.plate}</p>
             <div className="grid grid-cols-2 gap-2">
-              <div><span className="text-muted-foreground block">Speed</span><span className="font-medium">{selected.speed != null ? `${Math.round(selected.speed)} km/h` : '—'}</span></div>
-              <div><span className="text-muted-foreground block">Ignition</span><span className="font-medium">{selected.ignition != null ? (selected.ignition ? 'ON' : 'OFF') : '—'}</span></div>
+              <div><span className="text-muted-foreground block">Velocidade</span><span className="font-medium">{selected.speed != null ? `${Math.round(selected.speed)} km/h` : '—'}</span></div>
+              <div><span className="text-muted-foreground block">Ignição</span><span className="font-medium">{selected.ignition != null ? (selected.ignition ? 'Ligada' : 'Desligada') : '—'}</span></div>
               <div><span className="text-muted-foreground block">Lat</span><span className="font-mono">{selected.latitude.toFixed(5)}</span></div>
               <div><span className="text-muted-foreground block">Lng</span><span className="font-mono">{selected.longitude.toFixed(5)}</span></div>
             </div>
-            <p className="text-muted-foreground">{formatDistanceToNow(new Date(selected.updatedAt), { addSuffix: true })}</p>
+            <p className="text-muted-foreground">{formatDistanceToNow(new Date(selected.updatedAt), { addSuffix: true, locale: ptBR })}</p>
           </div>
         )}
       </div>
 
-      {/* Map */}
       <div className="flex-1 relative">
         <MapContainer center={mapCenter} zoom={11} style={{ width: '100%', height: '100%' }} className="z-0">
           <TileLayer
@@ -176,9 +172,9 @@ export default function Tracking() {
                 <div className="text-xs min-w-32">
                   <p className="font-bold text-sm">{v.plate}</p>
                   <p className="text-gray-500">{v.model}</p>
-                  <p>Status: <strong>{v.status}</strong></p>
-                  {v.speed != null && <p>Speed: <strong>{Math.round(v.speed)} km/h</strong></p>}
-                  {v.ignition != null && <p>Ignition: <strong>{v.ignition ? 'ON' : 'OFF'}</strong></p>}
+                  <p>Status: <strong>{v.status === 'ONLINE' ? 'Online' : 'Offline'}</strong></p>
+                  {v.speed != null && <p>Velocidade: <strong>{Math.round(v.speed)} km/h</strong></p>}
+                  {v.ignition != null && <p>Ignição: <strong>{v.ignition ? 'Ligada' : 'Desligada'}</strong></p>}
                 </div>
               </Popup>
             </Marker>
@@ -187,10 +183,10 @@ export default function Tracking() {
             <>
               <Polyline positions={historyPoints} color="#3b82f6" weight={3} opacity={0.8} />
               <Marker position={historyPoints[0]}>
-                <Popup><span className="text-xs font-medium">Start</span></Popup>
+                <Popup><span className="text-xs font-medium">Início</span></Popup>
               </Marker>
               <Marker position={historyPoints[historyPoints.length - 1]}>
-                <Popup><span className="text-xs font-medium">End</span></Popup>
+                <Popup><span className="text-xs font-medium">Fim</span></Popup>
               </Marker>
             </>
           )}

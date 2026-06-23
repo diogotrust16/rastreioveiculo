@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Plus, Pencil, Trash2, Wifi, WifiOff, Search } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { ptBR } from 'date-fns/locale';
 
 type Vehicle = {
   id: number; plate: string; model: string; imei: string;
@@ -70,32 +71,32 @@ export default function Vehicles() {
     <div className="flex-1 p-6 overflow-y-auto">
       <div className="flex items-center justify-between mb-8">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Vehicles</h1>
-          <p className="text-muted-foreground text-sm mt-1">Manage your tracked fleet.</p>
+          <h1 className="text-2xl font-bold tracking-tight">Veículos</h1>
+          <p className="text-muted-foreground text-sm mt-1">Gerencie a sua frota monitorada.</p>
         </div>
-        <Button onClick={openCreate} className="gap-2"><Plus className="w-4 h-4" /> Add Vehicle</Button>
+        <Button onClick={openCreate} className="gap-2"><Plus className="w-4 h-4" /> Adicionar Veículo</Button>
       </div>
 
       <div className="relative mb-4">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-        <Input className="pl-9" placeholder="Search by plate, model or IMEI..." value={search} onChange={e => setSearch(e.target.value)} />
+        <Input className="pl-9" placeholder="Buscar por placa, modelo ou IMEI..." value={search} onChange={e => setSearch(e.target.value)} />
       </div>
 
       <div className="bg-card border border-border rounded-xl overflow-hidden">
         {isLoading ? (
-          <div className="p-8 text-center text-muted-foreground">Loading vehicles...</div>
+          <div className="p-8 text-center text-muted-foreground">Carregando veículos...</div>
         ) : filtered.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground">No vehicles found.</div>
+          <div className="p-8 text-center text-muted-foreground">Nenhum veículo encontrado.</div>
         ) : (
           <table className="w-full text-sm">
             <thead className="border-b border-border bg-muted/30">
               <tr>
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Plate</th>
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Model</th>
+                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Placa</th>
+                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Modelo</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">IMEI</th>
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Client</th>
+                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Cliente</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Status</th>
-                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Last Seen</th>
+                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Última Atividade</th>
                 <th className="px-4 py-3" />
               </tr>
             </thead>
@@ -109,11 +110,11 @@ export default function Vehicles() {
                   <td className="px-4 py-3">
                     <Badge variant={v.status === 'ONLINE' ? 'default' : 'secondary'} className={`gap-1.5 ${v.status === 'ONLINE' ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20' : 'bg-muted text-muted-foreground'}`}>
                       {v.status === 'ONLINE' ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
-                      {v.status}
+                      {v.status === 'ONLINE' ? 'Online' : 'Offline'}
                     </Badge>
                   </td>
                   <td className="px-4 py-3 text-muted-foreground text-xs">
-                    {v.lastPosition ? formatDistanceToNow(new Date(v.lastPosition.createdAt), { addSuffix: true }) : '—'}
+                    {v.lastPosition ? formatDistanceToNow(new Date(v.lastPosition.createdAt), { addSuffix: true, locale: ptBR }) : '—'}
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2 justify-end">
@@ -130,25 +131,25 @@ export default function Vehicles() {
 
       <Dialog open={dialog !== null} onOpenChange={(open) => { if (!open) setDialog(null); }}>
         <DialogContent>
-          <DialogHeader><DialogTitle>{dialog === 'create' ? 'Add Vehicle' : 'Edit Vehicle'}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>{dialog === 'create' ? 'Adicionar Veículo' : 'Editar Veículo'}</DialogTitle></DialogHeader>
           <div className="space-y-4 py-2">
-            <div><Label>Plate</Label><Input value={form.plate} onChange={e => setForm(f => ({ ...f, plate: e.target.value }))} placeholder="ABC-1234" className="mt-1" /></div>
-            <div><Label>Model</Label><Input value={form.model} onChange={e => setForm(f => ({ ...f, model: e.target.value }))} placeholder="Volvo FH 460" className="mt-1" /></div>
+            <div><Label>Placa</Label><Input value={form.plate} onChange={e => setForm(f => ({ ...f, plate: e.target.value }))} placeholder="ABC-1234" className="mt-1" /></div>
+            <div><Label>Modelo</Label><Input value={form.model} onChange={e => setForm(f => ({ ...f, model: e.target.value }))} placeholder="Volvo FH 460" className="mt-1" /></div>
             <div><Label>IMEI</Label><Input value={form.imei} onChange={e => setForm(f => ({ ...f, imei: e.target.value }))} placeholder="123456789012345" className="mt-1" /></div>
             <div>
-              <Label>Client (optional)</Label>
+              <Label>Cliente (opcional)</Label>
               <Select value={form.clientId} onValueChange={v => setForm(f => ({ ...f, clientId: v }))}>
-                <SelectTrigger className="mt-1"><SelectValue placeholder="No client" /></SelectTrigger>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Sem cliente" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">No client</SelectItem>
+                  <SelectItem value="">Sem cliente</SelectItem>
                   {(clients as {id: number; name: string}[]).map(c => <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialog(null)}>Cancel</Button>
-            <Button onClick={handleSave} disabled={!form.plate || !form.model || !form.imei}>Save</Button>
+            <Button variant="outline" onClick={() => setDialog(null)}>Cancelar</Button>
+            <Button onClick={handleSave} disabled={!form.plate || !form.model || !form.imei}>Salvar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -156,12 +157,12 @@ export default function Vehicles() {
       <AlertDialog open={deleteId !== null} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Vehicle</AlertDialogTitle>
-            <AlertDialogDescription>This will permanently delete the vehicle and all its data. This action cannot be undone.</AlertDialogDescription>
+            <AlertDialogTitle>Excluir Veículo</AlertDialogTitle>
+            <AlertDialogDescription>Isso irá excluir permanentemente o veículo e todos os seus dados. Esta ação não pode ser desfeita.</AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Excluir</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

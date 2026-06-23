@@ -56,7 +56,7 @@ SaaS vehicle monitoring platform — real-time GPS tracking, geofences, alerts, 
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- A interface do usuário deve ser em **português brasileiro**. Usar locale `ptBR` do date-fns em todas as datas.
 
 ## Gotchas
 

@@ -21,7 +21,7 @@ export default function Login() {
         setLocation('/dashboard');
       },
       onError: (err: any) => {
-        setError(err.message || 'Invalid credentials');
+        setError(err.message || 'Credenciais inválidas');
       }
     }
   });
@@ -34,7 +34,6 @@ export default function Login() {
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center bg-background relative overflow-hidden">
-      {/* Decorative background elements */}
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-primary/10 rounded-full blur-[120px] pointer-events-none" />
 
@@ -48,7 +47,7 @@ export default function Login() {
             FLEET<span className="text-primary">WATCH</span>
           </h1>
           <p className="text-muted-foreground mt-2 text-sm text-center">
-            Mission control for your fleet operations
+            Controle total das suas operações de frota
           </p>
         </div>
 
@@ -61,11 +60,11 @@ export default function Login() {
             )}
             
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email">E-mail</Label>
               <Input 
                 id="email" 
                 type="email" 
-                placeholder="dispatcher@company.com" 
+                placeholder="dispatcher@empresa.com.br" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required 
@@ -74,9 +73,7 @@ export default function Login() {
             </div>
             
             <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
-              </div>
+              <Label htmlFor="password">Senha</Label>
               <Input 
                 id="password" 
                 type="password" 
@@ -92,7 +89,7 @@ export default function Login() {
               className="w-full h-11 text-base font-semibold" 
               disabled={loginMutation.isPending}
             >
-              {loginMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Enter Command Center'}
+              {loginMutation.isPending ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Entrar no Sistema'}
             </Button>
           </form>
         </div>

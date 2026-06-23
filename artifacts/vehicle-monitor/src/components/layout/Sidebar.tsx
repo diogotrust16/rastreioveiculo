@@ -4,12 +4,12 @@ import { Map, LayoutDashboard, Car, AlertTriangle, Users, Target, LogOut } from 
 import { useAuth } from '@/hooks/use-auth';
 
 const NAV_ITEMS = [
-  { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { href: '/tracking', label: 'Tracking', icon: Map },
-  { href: '/vehicles', label: 'Vehicles', icon: Car },
-  { href: '/alerts', label: 'Alerts', icon: AlertTriangle },
-  { href: '/geofences', label: 'Geofences', icon: Target },
-  { href: '/clients', label: 'Clients', icon: Users },
+  { href: '/dashboard', label: 'Painel', icon: LayoutDashboard },
+  { href: '/tracking', label: 'Rastreamento', icon: Map },
+  { href: '/vehicles', label: 'Veículos', icon: Car },
+  { href: '/alerts', label: 'Alertas', icon: AlertTriangle },
+  { href: '/geofences', label: 'Geocercas', icon: Target },
+  { href: '/clients', label: 'Clientes', icon: Users },
 ];
 
 export default function Sidebar() {
@@ -38,7 +38,7 @@ export default function Sidebar() {
       <div className="p-4 border-t border-border">
         <button onClick={logout} className="w-full flex items-center gap-3 px-3 py-2.5 rounded-md text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors">
           <LogOut className="w-5 h-5" />
-          <span className="font-medium">Logout</span>
+          <span className="font-medium">Sair</span>
         </button>
       </div>
     </aside>

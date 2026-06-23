@@ -73,23 +73,22 @@ export default function Geofences() {
 
   return (
     <div className="flex h-[calc(100vh-3.5rem)] overflow-hidden">
-      {/* Sidebar */}
       <div className="w-80 border-r border-border bg-card flex flex-col overflow-hidden shrink-0">
         <div className="p-4 border-b border-border flex items-center justify-between">
           <div>
-            <h2 className="font-semibold text-sm">Geofences</h2>
-            <p className="text-xs text-muted-foreground">{geofenceList.length} configured</p>
+            <h2 className="font-semibold text-sm">Geocercas</h2>
+            <p className="text-xs text-muted-foreground">{geofenceList.length} configuradas</p>
           </div>
-          <Button size="sm" onClick={() => setDialog(true)} className="gap-1.5 text-xs"><Plus className="w-3.5 h-3.5" /> Add</Button>
+          <Button size="sm" onClick={() => setDialog(true)} className="gap-1.5 text-xs"><Plus className="w-3.5 h-3.5" /> Adicionar</Button>
         </div>
 
         <div className="flex-1 overflow-y-auto">
           {isLoading ? (
-            <div className="p-4 text-sm text-muted-foreground">Loading...</div>
+            <div className="p-4 text-sm text-muted-foreground">Carregando...</div>
           ) : geofenceList.length === 0 ? (
             <div className="p-8 text-center text-muted-foreground">
               <Shield className="w-10 h-10 mx-auto mb-2 opacity-20" />
-              <p className="text-sm">No geofences yet</p>
+              <p className="text-sm">Nenhuma geocerca cadastrada</p>
             </div>
           ) : geofenceList.map((g, i) => (
             <div key={g.id} className="px-4 py-3 border-b border-border/50 hover:bg-muted/20 transition-colors group">
@@ -102,18 +101,17 @@ export default function Geofences() {
                   <Trash2 className="w-3.5 h-3.5" />
                 </Button>
               </div>
-              <p className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="w-3 h-3" /> {g.vehiclePlate ?? 'Unknown vehicle'}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Radius: {g.radius}m · {g.latitude.toFixed(4)}, {g.longitude.toFixed(4)}</p>
+              <p className="text-xs text-muted-foreground flex items-center gap-1"><MapPin className="w-3 h-3" /> {g.vehiclePlate ?? 'Veículo desconhecido'}</p>
+              <p className="text-xs text-muted-foreground mt-0.5">Raio: {g.radius}m · {g.latitude.toFixed(4)}, {g.longitude.toFixed(4)}</p>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Map */}
       <div className="flex-1 relative">
         {picking && (
           <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm shadow-lg">
-            Click on the map to place the geofence center
+            Clique no mapa para definir o centro da geocerca
           </div>
         )}
         <MapContainer center={mapCenter} zoom={12} style={{ width: '100%', height: '100%' }}>
@@ -133,8 +131,8 @@ export default function Geofences() {
                 <Popup>
                   <div className="text-xs">
                     <p className="font-bold">{g.name}</p>
-                    <p>Vehicle: {g.vehiclePlate ?? '—'}</p>
-                    <p>Radius: {g.radius}m</p>
+                    <p>Veículo: {g.vehiclePlate ?? '—'}</p>
+                    <p>Raio: {g.radius}m</p>
                   </div>
                 </Popup>
               </Marker>
@@ -145,37 +143,37 @@ export default function Geofences() {
 
       <Dialog open={dialog} onOpenChange={setDialog}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Add Geofence</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle>Nova Geocerca</DialogTitle></DialogHeader>
           <div className="space-y-4 py-2">
-            <div><Label>Vehicle</Label>
+            <div><Label>Veículo</Label>
               <Select value={form.vehicleId} onValueChange={v => setForm(f => ({ ...f, vehicleId: v }))}>
-                <SelectTrigger className="mt-1"><SelectValue placeholder="Select vehicle" /></SelectTrigger>
+                <SelectTrigger className="mt-1"><SelectValue placeholder="Selecionar veículo" /></SelectTrigger>
                 <SelectContent>{(vehicles as any[]).map(v => <SelectItem key={v.id} value={v.id.toString()}>{v.plate} — {v.model}</SelectItem>)}</SelectContent>
               </Select>
             </div>
-            <div><Label>Name</Label><Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Warehouse Zone" className="mt-1" /></div>
+            <div><Label>Nome</Label><Input value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} placeholder="Zona do Depósito" className="mt-1" /></div>
             <div className="grid grid-cols-2 gap-3">
               <div><Label>Latitude</Label><Input value={form.latitude} onChange={e => setForm(f => ({ ...f, latitude: e.target.value }))} placeholder="-23.5505" className="mt-1" /></div>
               <div><Label>Longitude</Label><Input value={form.longitude} onChange={e => setForm(f => ({ ...f, longitude: e.target.value }))} placeholder="-46.6333" className="mt-1" /></div>
             </div>
             <Button type="button" variant="outline" size="sm" onClick={() => { setDialog(false); setPicking(true); }} className="w-full gap-2 text-xs">
-              <MapPin className="w-3.5 h-3.5" /> Pick on Map
+              <MapPin className="w-3.5 h-3.5" /> Selecionar no Mapa
             </Button>
-            <div><Label>Radius (meters)</Label><Input type="number" value={form.radius} onChange={e => setForm(f => ({ ...f, radius: e.target.value }))} className="mt-1" /></div>
+            <div><Label>Raio (metros)</Label><Input type="number" value={form.radius} onChange={e => setForm(f => ({ ...f, radius: e.target.value }))} className="mt-1" /></div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDialog(false)}>Cancel</Button>
-            <Button onClick={handleSave} disabled={!form.vehicleId || !form.name || !form.latitude || !form.longitude}>Save</Button>
+            <Button variant="outline" onClick={() => setDialog(false)}>Cancelar</Button>
+            <Button onClick={handleSave} disabled={!form.vehicleId || !form.name || !form.latitude || !form.longitude}>Salvar</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       <AlertDialog open={deleteId !== null} onOpenChange={(open) => { if (!open) setDeleteId(null); }}>
         <AlertDialogContent>
-          <AlertDialogHeader><AlertDialogTitle>Delete Geofence</AlertDialogTitle><AlertDialogDescription>This will remove the geofence permanently.</AlertDialogDescription></AlertDialogHeader>
+          <AlertDialogHeader><AlertDialogTitle>Excluir Geocerca</AlertDialogTitle><AlertDialogDescription>Isso removerá a geocerca permanentemente.</AlertDialogDescription></AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Excluir</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
