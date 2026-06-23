@@ -8,6 +8,7 @@ import geofencesRouter from "./geofences";
 import alertsRouter from "./alerts";
 import dashboardRouter from "./dashboard";
 import usersRouter from "./users";
+import gpsRouter from "./gps";
 
 const router: IRouter = Router();
 
@@ -20,5 +21,6 @@ router.use("/geofences", geofencesRouter);
 router.use("/alerts", alertsRouter);
 router.use("/dashboard", dashboardRouter);
 router.use("/users", usersRouter);
+router.use(gpsRouter);
 
 export default router;
