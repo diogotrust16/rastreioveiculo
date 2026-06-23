@@ -111,6 +111,7 @@ export function startTcpServer(port: number = 5001): void {
             vehicle.id,
             vehicle.plate,
             parsed.speed,
+            vehicle.speedLimit ?? 80,
             parsed.ignition,
             prevIgnition,
             parsed.latitude,
