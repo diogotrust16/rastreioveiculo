@@ -32,6 +32,7 @@ export const vehiclesTable = pgTable("vehicles", {
   model: text("model").notNull(),
   imei: text("imei").notNull().unique(),
   status: vehicleStatusEnum("status").notNull().default("OFFLINE"),
+  speedLimit: integer("speed_limit").notNull().default(80),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

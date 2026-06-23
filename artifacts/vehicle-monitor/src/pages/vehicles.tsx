@@ -20,11 +20,12 @@ import { ptBR } from 'date-fns/locale';
 type Vehicle = {
   id: number; plate: string; model: string; imei: string;
   status: 'ONLINE' | 'OFFLINE'; clientId?: number | null; clientName?: string | null;
+  speedLimit?: number | null;
   lastPosition?: { latitude: number; longitude: number; speed?: number | null; createdAt: string } | null;
   createdAt: string;
 };
 
-const emptyForm = { plate: '', model: '', imei: '', clientId: '' };
+const emptyForm = { plate: '', model: '', imei: '', clientId: '', speedLimit: '80' };
 
 export default function Vehicles() {
   const qc = useQueryClient();
@@ -48,11 +49,12 @@ export default function Vehicles() {
   );
 
   function openCreate() { setForm(emptyForm); setDialog('create'); }
-  function openEdit(v: Vehicle) { setEditing(v); setForm({ plate: v.plate, model: v.model, imei: v.imei, clientId: v.clientId?.toString() ?? '' }); setDialog('edit'); }
+  function openEdit(v: Vehicle) { setEditing(v); setForm({ plate: v.plate, model: v.model, imei: v.imei, clientId: v.clientId?.toString() ?? '', speedLimit: (v.speedLimit ?? 80).toString() }); setDialog('edit'); }
 
   async function handleSave() {
     const clientId = form.clientId && form.clientId !== '__none__' ? parseInt(form.clientId) : undefined;
-    const payload = { plate: form.plate, model: form.model, imei: form.imei, clientId };
+    const speedLimit = parseInt(form.speedLimit) || 80;
+    const payload = { plate: form.plate, model: form.model, imei: form.imei, clientId, speedLimit };
     if (dialog === 'create') {
       await createMut.mutateAsync({ data: payload });
     } else if (dialog === 'edit' && editing) {
@@ -102,6 +104,7 @@ export default function Vehicles() {
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Modelo</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">IMEI</th>
                 {isAdmin && <th className="text-left px-4 py-3 font-medium text-muted-foreground">Cliente</th>}
+                <th className="text-left px-4 py-3 font-medium text-muted-foreground">Lim. Vel.</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Status</th>
                 <th className="text-left px-4 py-3 font-medium text-muted-foreground">Última Atividade</th>
                 {isAdmin && <th className="px-4 py-3" />}
@@ -114,6 +117,7 @@ export default function Vehicles() {
                   <td className="px-4 py-3">{v.model}</td>
                   <td className="px-4 py-3 font-mono text-xs text-muted-foreground">{v.imei}</td>
                   {isAdmin && <td className="px-4 py-3 text-muted-foreground">{v.clientName ?? '—'}</td>}
+                  <td className="px-4 py-3 text-sm font-medium">{v.speedLimit ?? 80} <span className="text-xs text-muted-foreground">km/h</span></td>
                   <td className="px-4 py-3">
                     <Badge variant={v.status === 'ONLINE' ? 'default' : 'secondary'} className={`gap-1.5 ${v.status === 'ONLINE' ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/20' : 'bg-muted text-muted-foreground'}`}>
                       {v.status === 'ONLINE' ? <Wifi className="w-3 h-3" /> : <WifiOff className="w-3 h-3" />}
@@ -156,6 +160,18 @@ export default function Vehicles() {
                       {(clients as {id: number; name: string}[]).map(c => <SelectItem key={c.id} value={c.id.toString()}>{c.name}</SelectItem>)}
                     </SelectContent>
                   </Select>
+                </div>
+                <div>
+                  <Label>Limite de velocidade (km/h)</Label>
+                  <Input
+                    type="number"
+                    min={10}
+                    max={200}
+                    value={form.speedLimit}
+                    onChange={e => setForm(f => ({ ...f, speedLimit: e.target.value }))}
+                    className="mt-1"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">Alerta disparado quando o veículo ultrapassar este limite</p>
                 </div>
               </div>
               <DialogFooter>

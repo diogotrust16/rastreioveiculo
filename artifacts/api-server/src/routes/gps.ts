@@ -62,7 +62,7 @@ async function processGPS(params: {
     updatedAt: position.createdAt,
   });
 
-  await checkAlerts(vehicle.id, vehicle.plate, speed, ignition, prevIgnition, lat, lon);
+  await checkAlerts(vehicle.id, vehicle.plate, speed, vehicle.speedLimit ?? 80, ignition, prevIgnition, lat, lon);
 
   logger.info({ vehicleId: vehicle.id, imei }, "GPS position saved");
   return vehicle;

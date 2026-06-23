@@ -55,7 +55,7 @@ router.get("/", requireAuth, async (req: Request, res: Response) => {
 });
 
 router.post("/", requireAuth, requireAdmin, async (req: Request, res: Response) => {
-  const { plate, model, imei, clientId } = req.body as { plate: string; model: string; imei: string; clientId?: number };
+  const { plate, model, imei, clientId, speedLimit } = req.body as { plate: string; model: string; imei: string; clientId?: number; speedLimit?: number };
   if (!plate || !model || !imei) {
     res.status(400).json({ error: "Plate, model, and IMEI required" });
     return;
@@ -63,7 +63,7 @@ router.post("/", requireAuth, requireAdmin, async (req: Request, res: Response) 
 
   const [vehicle] = await db
     .insert(vehiclesTable)
-    .values({ plate, model, imei, clientId: clientId ?? null })
+    .values({ plate, model, imei, clientId: clientId ?? null, speedLimit: speedLimit ?? 80 })
     .returning();
 
   res.status(201).json({ ...vehicle, clientName: null, lastPosition: null });
@@ -86,11 +86,11 @@ router.get("/:id", requireAuth, async (req: Request, res: Response) => {
 
 router.put("/:id", requireAuth, requireAdmin, async (req: Request, res: Response) => {
   const id = parseInt(String(req.params.id));
-  const { plate, model, imei, clientId } = req.body as { plate: string; model: string; imei: string; clientId?: number };
+  const { plate, model, imei, clientId, speedLimit } = req.body as { plate: string; model: string; imei: string; clientId?: number; speedLimit?: number };
 
   const [updated] = await db
     .update(vehiclesTable)
-    .set({ plate, model, imei, clientId: clientId ?? null })
+    .set({ plate, model, imei, clientId: clientId ?? null, speedLimit: speedLimit ?? 80 })
     .where(eq(vehiclesTable.id, id))
     .returning();
 
