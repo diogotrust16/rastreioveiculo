@@ -55,7 +55,7 @@ export default function Geofences() {
   const [picking, setPicking] = useState(false);
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [focusCenter, setFocusCenter] = useState<[number, number] | null>(null);
-  const [form, setForm] = useState({ vehicleId: '', name: '', latitude: '', longitude: '', radius: '500' });
+  const [form, setForm] = useState({ vehicleId: '', name: '', latitude: '', longitude: '', radius: '0.5' });
 
   const geofenceList = geofences as Geofence[];
   const liveList = livePositions as LivePos[];
@@ -91,13 +91,13 @@ export default function Geofences() {
         name: form.name,
         latitude: parseFloat(form.latitude),
         longitude: parseFloat(form.longitude),
-        radius: parseFloat(form.radius),
+        radius: parseFloat(form.radius) * 1000, // km → meters for DB/Leaflet
       }
     });
     qc.invalidateQueries({ queryKey: getListGeofencesQueryKey() });
     setDialog(false);
     setFocusCenter(null);
-    setForm({ vehicleId: '', name: '', latitude: '', longitude: '', radius: '500' });
+    setForm({ vehicleId: '', name: '', latitude: '', longitude: '', radius: '0.5' });
   }
 
   async function handleDelete() {
@@ -179,7 +179,7 @@ export default function Geofences() {
                 <MapPin className="w-3 h-3" /> {g.vehiclePlate ?? 'Veículo desconhecido'}
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Raio: {g.radius}m · {g.latitude.toFixed(4)}, {g.longitude.toFixed(4)}
+                Raio: {(g.radius / 1000).toFixed(2)} km · {g.latitude.toFixed(4)}, {g.longitude.toFixed(4)}
               </p>
             </div>
           ))}
@@ -289,8 +289,8 @@ export default function Geofences() {
             </Button>
 
             <div>
-              <Label>Raio (metros)</Label>
-              <Input type="number" value={form.radius} onChange={e => setForm(f => ({ ...f, radius: e.target.value }))} className="mt-1" />
+              <Label>Raio (km)</Label>
+              <Input type="number" step="0.1" min="0.1" value={form.radius} onChange={e => setForm(f => ({ ...f, radius: e.target.value }))} placeholder="0.5" className="mt-1" />
             </div>
           </div>
           <DialogFooter>
