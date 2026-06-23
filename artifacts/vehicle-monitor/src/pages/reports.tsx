@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useListVehicles, useGetPositionHistory } from '@workspace/api-client-react';
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -74,11 +74,14 @@ export default function Reports() {
   const [chartType, setChartType] = useState<'area' | 'bar'>('area');
 
   const vehicleIdNum = vehicleId ? parseInt(vehicleId) : 0;
-  const { from, to } = getPeriodDates(period);
+
+  // Memoize dates so the query key only changes when period changes,
+  // not on every render (which would cause an infinite re-fetch loop).
+  const { from, to } = useMemo(() => getPeriodDates(period), [period]);
 
   const { data: rawPositions = [], isLoading, isFetching } = useGetPositionHistory(
     { vehicleId: vehicleIdNum, from, to },
-    { query: { enabled: !!vehicleId, refetchInterval: 30_000 } }
+    { query: { enabled: !!vehicleId, refetchInterval: 60_000, staleTime: 30_000 } }
   );
 
   const positions = rawPositions as Position[];
