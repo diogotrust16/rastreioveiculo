@@ -25,13 +25,23 @@ const queryClient = new QueryClient({
   },
 });
 
-function ProtectedRoutes() {
+function Router() {
   const { isAuthenticated } = useAuth();
-  if (!isAuthenticated) return <Redirect to="/login" />;
+
+  if (!isAuthenticated) {
+    return (
+      <Switch>
+        <Route path="/login" component={Login} />
+        <Route component={Login} />
+      </Switch>
+    );
+  }
+
   return (
     <AppLayout>
       <Switch>
         <Route path="/" component={() => <Redirect to="/dashboard" />} />
+        <Route path="/login" component={() => <Redirect to="/dashboard" />} />
         <Route path="/dashboard" component={Dashboard} />
         <Route path="/tracking" component={Tracking} />
         <Route path="/vehicles" component={Vehicles} />
@@ -41,15 +51,6 @@ function ProtectedRoutes() {
         <Route component={NotFound} />
       </Switch>
     </AppLayout>
-  );
-}
-
-function Router() {
-  return (
-    <Switch>
-      <Route path="/login" component={Login} />
-      <Route path="/:rest*" component={ProtectedRoutes} />
-    </Switch>
   );
 }
 
