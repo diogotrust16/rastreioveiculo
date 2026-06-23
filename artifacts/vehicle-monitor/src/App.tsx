@@ -56,16 +56,16 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <SocketProvider>
-          <TooltipProvider>
-            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+      <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+        <AuthProvider>
+          <SocketProvider>
+            <TooltipProvider>
               <Router />
-            </WouterRouter>
-            <Toaster />
-          </TooltipProvider>
-        </SocketProvider>
-      </AuthProvider>
+              <Toaster />
+            </TooltipProvider>
+          </SocketProvider>
+        </AuthProvider>
+      </WouterRouter>
     </QueryClientProvider>
   );
 }
