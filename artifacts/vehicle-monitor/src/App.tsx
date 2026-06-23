@@ -17,6 +17,7 @@ import Alerts from "@/pages/alerts";
 import Geofences from "@/pages/geofences";
 import Clients from "@/pages/clients";
 import Users from "@/pages/users";
+import Reports from "@/pages/reports";
 import NotFound from "@/pages/not-found";
 
 const ALERT_LABELS: Record<string, string> = {
@@ -116,6 +117,7 @@ function Router() {
         <Route path="/vehicles" component={Vehicles} />
         <Route path="/alerts" component={Alerts} />
         <Route path="/geofences" component={Geofences} />
+        <Route path="/reports" component={Reports} />
         <Route path="/clients" component={isAdmin ? Clients : () => <Redirect to="/dashboard" />} />
         <Route path="/users" component={isAdmin ? Users : () => <Redirect to="/dashboard" />} />
         <Route component={NotFound} />
