@@ -1,5 +1,5 @@
 {
   "version": 2,
   "installCommand": "cd ../.. && pnpm install",
-  "buildCommand": "cd ../.. && pnpm run typecheck:libs && pnpm --filter @workspace/api-server run typecheck && pnpm --filter @workspace/api-server run build"
+  "buildCommand": "cd ../.. && pnpm run typecheck:libs && pnpm --filter @workspace/api-server run typecheck"
 }
