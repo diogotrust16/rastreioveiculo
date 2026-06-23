@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useListVehicles, useGetLivePositions, useGetPositionHistory, getGetLivePositionsQueryKey } from '@workspace/api-client-react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useSocket } from '@/hooks/use-socket';
@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { Clock, Zap, Wifi, WifiOff, History } from 'lucide-react';
+import { Clock, Zap, Wifi, WifiOff, History, Crosshair, Navigation } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 
@@ -50,6 +50,11 @@ export default function Tracking() {
   const [selectedVehicle, setSelectedVehicle] = useState<number | null>(null);
   const [flyTo, setFlyTo] = useState<[number, number] | null>(null);
   const [positions, setPositions] = useState<Map<number, LivePos>>(new Map());
+  const [autoFollow, setAutoFollow] = useState(false);
+  const selectedVehicleRef = useRef<number | null>(null);
+  const autoFollowRef = useRef(false);
+  selectedVehicleRef.current = selectedVehicle;
+  autoFollowRef.current = autoFollow;
 
   const [histVehicle, setHistVehicle] = useState('');
   const [histFrom, setHistFrom] = useState('');
@@ -71,6 +76,9 @@ export default function Tracking() {
     socket.on('vehicle:position', (data: LivePos) => {
       setPositions(prev => new Map(prev).set(data.vehicleId, data));
       qc.invalidateQueries({ queryKey: getGetLivePositionsQueryKey() });
+      if (autoFollowRef.current && selectedVehicleRef.current === data.vehicleId) {
+        setFlyTo([data.latitude, data.longitude]);
+      }
     });
     return () => { socket.off('vehicle:position'); };
   }, [socket, qc]);
@@ -155,6 +163,24 @@ export default function Tracking() {
               <div><span className="text-muted-foreground block">Lng</span><span className="font-mono">{selected.longitude.toFixed(5)}</span></div>
             </div>
             <p className="text-muted-foreground">{formatDistanceToNow(new Date(selected.updatedAt), { addSuffix: true, locale: ptBR })}</p>
+            <div className="flex gap-2 pt-1">
+              <Button
+                size="sm"
+                variant="outline"
+                className="flex-1 h-7 text-xs gap-1.5"
+                onClick={() => setFlyTo([selected.latitude, selected.longitude])}
+              >
+                <Crosshair className="w-3 h-3" /> Centralizar
+              </Button>
+              <Button
+                size="sm"
+                variant={autoFollow ? 'default' : 'outline'}
+                className="flex-1 h-7 text-xs gap-1.5"
+                onClick={() => setAutoFollow(v => !v)}
+              >
+                <Navigation className="w-3 h-3" /> {autoFollow ? 'Seguindo' : 'Seguir'}
+              </Button>
+            </div>
           </div>
         )}
       </div>
