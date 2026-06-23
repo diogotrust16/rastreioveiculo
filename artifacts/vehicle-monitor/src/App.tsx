@@ -26,7 +26,7 @@ const queryClient = new QueryClient({
 });
 
 function Router() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, isAdmin } = useAuth();
 
   if (!isAuthenticated) {
     return (
@@ -47,7 +47,7 @@ function Router() {
         <Route path="/vehicles" component={Vehicles} />
         <Route path="/alerts" component={Alerts} />
         <Route path="/geofences" component={Geofences} />
-        <Route path="/clients" component={Clients} />
+        <Route path="/clients" component={isAdmin ? Clients : () => <Redirect to="/dashboard" />} />
         <Route component={NotFound} />
       </Switch>
     </AppLayout>

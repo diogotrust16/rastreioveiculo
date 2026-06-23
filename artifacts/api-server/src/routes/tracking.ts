@@ -7,7 +7,12 @@ import { requireAuth } from "../middlewares/auth";
 const router = Router();
 
 router.get("/live", requireAuth, async (req: Request, res: Response) => {
-  const vehicles = await db.select().from(vehiclesTable).orderBy(vehiclesTable.plate);
+  const isClient = req.user!.role === "CLIENT";
+  const clientId = req.user!.clientId;
+
+  const vehicles = isClient && clientId
+    ? await db.select().from(vehiclesTable).where(eq(vehiclesTable.clientId, clientId)).orderBy(vehiclesTable.plate)
+    : await db.select().from(vehiclesTable).orderBy(vehiclesTable.plate);
 
   const result = await Promise.all(
     vehicles.map(async (v) => {
@@ -51,6 +56,15 @@ router.get("/history", requireAuth, async (req: Request, res: Response) => {
   if (!vehicleId || isNaN(vehicleId)) {
     res.status(400).json({ error: "vehicleId is required" });
     return;
+  }
+
+  // CLIENT users can only view history of their own vehicles
+  if (req.user!.role === "CLIENT" && req.user!.clientId) {
+    const [vehicle] = await db.select().from(vehiclesTable).where(eq(vehiclesTable.id, vehicleId)).limit(1);
+    if (!vehicle || vehicle.clientId !== req.user!.clientId) {
+      res.status(403).json({ error: "Forbidden" });
+      return;
+    }
   }
 
   const conditions = [eq(positionsTable.vehicleId, vehicleId)];

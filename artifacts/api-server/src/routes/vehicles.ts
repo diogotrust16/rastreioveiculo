@@ -27,8 +27,13 @@ async function getVehicleWithDetails(id: number) {
 }
 
 router.get("/", requireAuth, async (req: Request, res: Response) => {
-  const vehicles = await db.select().from(vehiclesTable).orderBy(vehiclesTable.plate);
-  
+  const isClient = req.user!.role === "CLIENT";
+  const clientId = req.user!.clientId;
+
+  const vehicles = isClient && clientId
+    ? await db.select().from(vehiclesTable).where(eq(vehiclesTable.clientId, clientId)).orderBy(vehiclesTable.plate)
+    : await db.select().from(vehiclesTable).orderBy(vehiclesTable.plate);
+
   const result = await Promise.all(
     vehicles.map(async (v) => {
       let clientName: string | null = null;
@@ -69,6 +74,11 @@ router.get("/:id", requireAuth, async (req: Request, res: Response) => {
   const vehicle = await getVehicleWithDetails(id);
   if (!vehicle) {
     res.status(404).json({ error: "Vehicle not found" });
+    return;
+  }
+  // CLIENT users can only view their own vehicles
+  if (req.user!.role === "CLIENT" && vehicle.clientId !== req.user!.clientId) {
+    res.status(403).json({ error: "Forbidden" });
     return;
   }
   res.json(vehicle);
