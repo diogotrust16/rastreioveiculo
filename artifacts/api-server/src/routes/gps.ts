@@ -69,19 +69,34 @@ async function processGPS(params: {
 }
 
 function parseParams(source: Record<string, unknown>) {
-  // Accept many field-name variants from different apps/protocols
+  // Traccar Client sends nested: { device_id, location: { coords: { latitude, longitude, speed, heading } } }
+  const coords = (source.location as any)?.coords as Record<string, unknown> | undefined;
+
   const imei = String(source.imei ?? source.id ?? source.deviceId ?? source.device_id ?? "").trim();
-  const lat = parseFloat((source.lat ?? source.latitude ?? source.Latitude ?? "") as string);
-  const lon = parseFloat((source.lon ?? source.lng ?? source.longitude ?? source.Longitude ?? "") as string);
-  const speed = parseFloat((source.speed ?? source.Speed ?? "0") as string) || 0;
-  const course = (source.course ?? source.bearing ?? source.heading) !== undefined
-    ? parseFloat((source.course ?? source.bearing ?? source.heading) as string)
-    : undefined;
+
+  const lat = parseFloat((
+    source.lat ?? source.latitude ?? source.Latitude ??
+    coords?.latitude ?? ""
+  ) as string);
+
+  const lon = parseFloat((
+    source.lon ?? source.lng ?? source.longitude ?? source.Longitude ??
+    coords?.longitude ?? ""
+  ) as string);
+
+  const speed = parseFloat((
+    source.speed ?? source.Speed ?? coords?.speed ?? "0"
+  ) as string) || 0;
+
+  const rawCourse = source.course ?? source.bearing ?? source.heading ?? coords?.heading;
+  const course = rawCourse !== undefined ? parseFloat(rawCourse as string) : undefined;
+
   const ignition =
     source.ignition === true ||
     source.ignition === "true" ||
     source.ignition === 1 ||
     source.ignition === "1";
+
   return { imei, lat, lon, speed, course, ignition };
 }
 
