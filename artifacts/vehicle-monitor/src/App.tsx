@@ -27,6 +27,33 @@ const ALERT_LABELS: Record<string, string> = {
   SIGNAL_LOST:   'Sinal Perdido',
 };
 
+function playAlertBeep() {
+  try {
+    const ctx = new AudioContext();
+    const now = ctx.currentTime;
+
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(880, now);
+    osc.frequency.exponentialRampToValueAtTime(660, now + 0.12);
+
+    gain.gain.setValueAtTime(0.4, now);
+    gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+    osc.start(now);
+    osc.stop(now + 0.35);
+
+    osc.onended = () => ctx.close();
+  } catch {
+    // silently ignore if AudioContext is blocked
+  }
+}
+
 function AlertNotifier() {
   const { socket } = useSocket();
   const qc = useQueryClient();
@@ -42,6 +69,7 @@ function AlertNotifier() {
       createdAt: string;
     }) {
       const label = ALERT_LABELS[data.type] ?? data.type;
+      playAlertBeep();
       toast({
         title: `🔔 ${label}`,
         description: `${data.vehiclePlate} — ${data.message}`,
