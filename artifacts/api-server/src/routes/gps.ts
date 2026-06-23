@@ -69,11 +69,14 @@ async function processGPS(params: {
 }
 
 function parseParams(source: Record<string, unknown>) {
-  const imei = String(source.imei ?? source.id ?? "").trim();
-  const lat = parseFloat(source.lat as string);
-  const lon = parseFloat(source.lon as string);
-  const speed = parseFloat((source.speed as string) ?? "0") || 0;
-  const course = source.course !== undefined ? parseFloat(source.course as string) : undefined;
+  // Accept many field-name variants from different apps/protocols
+  const imei = String(source.imei ?? source.id ?? source.deviceId ?? source.device_id ?? "").trim();
+  const lat = parseFloat((source.lat ?? source.latitude ?? source.Latitude ?? "") as string);
+  const lon = parseFloat((source.lon ?? source.lng ?? source.longitude ?? source.Longitude ?? "") as string);
+  const speed = parseFloat((source.speed ?? source.Speed ?? "0") as string) || 0;
+  const course = (source.course ?? source.bearing ?? source.heading) !== undefined
+    ? parseFloat((source.course ?? source.bearing ?? source.heading) as string)
+    : undefined;
   const ignition =
     source.ignition === true ||
     source.ignition === "true" ||
@@ -82,32 +85,30 @@ function parseParams(source: Record<string, unknown>) {
   return { imei, lat, lon, speed, course, ignition };
 }
 
-// POST /api/gps  — JSON body (GPS Logger, curl, custom apps)
-router.post("/gps", async (req: Request, res: Response) => {
-  const p = parseParams(req.body);
+async function handleGPS(source: Record<string, unknown>, res: Response) {
+  logger.info({ source }, "GPS raw input");
+  const p = parseParams(source);
 
   if (!p.imei || isNaN(p.lat) || isNaN(p.lon)) {
-    res.status(400).json({ error: "imei (ou id), lat e lon são obrigatórios" });
+    logger.warn({ source, parsed: p }, "GPS 400 — missing fields");
+    res.status(400).json({ error: "id (IMEI), lat e lon são obrigatórios", received: source });
     return;
   }
 
   const vehicle = await processGPS(p);
   if (!vehicle) { res.status(404).json({ error: "IMEI não encontrado" }); return; }
   res.json({ ok: true });
+}
+
+// POST /api/gps  — JSON or form-urlencoded body (also merges query params)
+router.post("/gps", async (req: Request, res: Response) => {
+  const source = { ...req.query, ...req.body } as Record<string, unknown>;
+  await handleGPS(source, res);
 });
 
-// GET /api/gps  — query params (Traccar Client, OwnTracks HTTP, etc.)
+// GET /api/gps  — query params (Traccar Client OsmAnd protocol, etc.)
 router.get("/gps", async (req: Request, res: Response) => {
-  const p = parseParams(req.query as Record<string, unknown>);
-
-  if (!p.imei || isNaN(p.lat) || isNaN(p.lon)) {
-    res.status(400).json({ error: "id (IMEI), lat e lon são obrigatórios" });
-    return;
-  }
-
-  const vehicle = await processGPS(p);
-  if (!vehicle) { res.status(404).json({ error: "IMEI não encontrado" }); return; }
-  res.json({ ok: true });
+  await handleGPS(req.query as Record<string, unknown>, res);
 });
 
 export default router;
