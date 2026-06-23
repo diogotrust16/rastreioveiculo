@@ -436,3 +436,62 @@ export const GetRecentAlertsResponseItem = zod.object({
 export const GetRecentAlertsResponse = zod.array(GetRecentAlertsResponseItem)
 
 
+/**
+ * @summary List all users (admin only)
+ */
+export const ListUsersResponseItem = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "email": zod.string(),
+  "role": zod.enum(['ADMIN', 'CLIENT']),
+  "clientId": zod.number().nullish(),
+  "createdAt": zod.coerce.date()
+})
+export const ListUsersResponse = zod.array(ListUsersResponseItem)
+
+
+/**
+ * @summary Create a new user (admin only)
+ */
+export const CreateUserBody = zod.object({
+  "name": zod.string(),
+  "email": zod.string().email(),
+  "password": zod.string().optional(),
+  "role": zod.enum(['ADMIN', 'CLIENT']).optional(),
+  "clientId": zod.number().nullish()
+})
+
+
+/**
+ * @summary Update a user (admin only)
+ */
+export const UpdateUserParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+export const UpdateUserBody = zod.object({
+  "name": zod.string(),
+  "email": zod.string().email(),
+  "password": zod.string().optional(),
+  "role": zod.enum(['ADMIN', 'CLIENT']).optional(),
+  "clientId": zod.number().nullish()
+})
+
+export const UpdateUserResponse = zod.object({
+  "id": zod.number(),
+  "name": zod.string(),
+  "email": zod.string(),
+  "role": zod.enum(['ADMIN', 'CLIENT']),
+  "clientId": zod.number().nullish(),
+  "createdAt": zod.coerce.date()
+})
+
+
+/**
+ * @summary Delete a user (admin only)
+ */
+export const DeleteUserParams = zod.object({
+  "id": zod.coerce.number()
+})
+
+

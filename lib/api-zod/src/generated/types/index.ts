@@ -25,6 +25,8 @@ export * from './position';
 export * from './refreshInput';
 export * from './registerInput';
 export * from './user';
+export * from './userInput';
+export * from './userInputRole';
 export * from './userRole';
 export * from './vehicle';
 export * from './vehicleInput';

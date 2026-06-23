@@ -7,6 +7,7 @@ import trackingRouter from "./tracking";
 import geofencesRouter from "./geofences";
 import alertsRouter from "./alerts";
 import dashboardRouter from "./dashboard";
+import usersRouter from "./users";
 
 const router: IRouter = Router();
 
@@ -18,5 +19,6 @@ router.use("/tracking", trackingRouter);
 router.use("/geofences", geofencesRouter);
 router.use("/alerts", alertsRouter);
 router.use("/dashboard", dashboardRouter);
+router.use("/users", usersRouter);
 
 export default router;

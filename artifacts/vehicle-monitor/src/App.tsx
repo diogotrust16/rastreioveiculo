@@ -14,6 +14,7 @@ import Vehicles from "@/pages/vehicles";
 import Alerts from "@/pages/alerts";
 import Geofences from "@/pages/geofences";
 import Clients from "@/pages/clients";
+import Users from "@/pages/users";
 import NotFound from "@/pages/not-found";
 
 const queryClient = new QueryClient({
@@ -48,6 +49,7 @@ function Router() {
         <Route path="/alerts" component={Alerts} />
         <Route path="/geofences" component={Geofences} />
         <Route path="/clients" component={isAdmin ? Clients : () => <Redirect to="/dashboard" />} />
+        <Route path="/users" component={isAdmin ? Users : () => <Redirect to="/dashboard" />} />
         <Route component={NotFound} />
       </Switch>
     </AppLayout>

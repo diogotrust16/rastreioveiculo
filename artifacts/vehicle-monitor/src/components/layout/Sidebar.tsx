@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link, useLocation } from 'wouter';
-import { Map, LayoutDashboard, Car, AlertTriangle, Users, Target, LogOut } from 'lucide-react';
+import { Map, LayoutDashboard, Car, AlertTriangle, Users, Target, LogOut, UserCog } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 
 const ADMIN_NAV = [
@@ -10,6 +10,7 @@ const ADMIN_NAV = [
   { href: '/alerts', label: 'Alertas', icon: AlertTriangle },
   { href: '/geofences', label: 'Geocercas', icon: Target },
   { href: '/clients', label: 'Clientes', icon: Users },
+  { href: '/users', label: 'Usuários', icon: UserCog },
 ];
 
 const CLIENT_NAV = [

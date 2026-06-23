@@ -50,6 +50,23 @@ export interface AuthResponse {
   user: User;
 }
 
+export type UserInputRole = typeof UserInputRole[keyof typeof UserInputRole];
+
+
+export const UserInputRole = {
+  ADMIN: 'ADMIN',
+  CLIENT: 'CLIENT',
+} as const;
+
+export interface UserInput {
+  name: string;
+  email: string;
+  password?: string;
+  role?: UserInputRole;
+  /** @nullable */
+  clientId?: number | null;
+}
+
 export interface Client {
   id: number;
   name: string;
