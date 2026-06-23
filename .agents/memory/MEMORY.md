@@ -1,0 +1,3 @@
+- [FleetWatch bcrypt seeding](fleetwatch-bcrypt.md) — always generate bcrypt hashes via `pnpm --filter @workspace/api-server exec node -e "require('bcrypt').hash(...)"`, never use pre-computed hashes from docs/examples.
+- [FleetWatch socket.io proxy](fleetwatch-socketio.md) — Socket.IO path `/socket.io` must be listed in the API server artifact.toml `paths` array or the reverse proxy won't forward WebSocket upgrade requests.
+- [FleetWatch wouter routing](fleetwatch-wouter.md) — auth guard belongs synchronously in the route component (not useEffect in layout), BASE_PATH "/" → wouter base "".

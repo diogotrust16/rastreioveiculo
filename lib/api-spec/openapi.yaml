@@ -1,22 +1,35 @@
 openapi: 3.1.0
 info:
-  # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Vehicle Monitoring SaaS API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication
+  - name: clients
+    description: Client management
+  - name: vehicles
+    description: Vehicle management
+  - name: tracking
+    description: GPS position tracking
+  - name: geofences
+    description: Geofence management
+  - name: alerts
+    description: Alert management
+  - name: dashboard
+    description: Dashboard summary data
+
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +37,749 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Login with email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Invalid credentials
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+
+  /auth/refresh:
+    post:
+      operationId: refreshToken
+      tags: [auth]
+      summary: Refresh access token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RefreshInput"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /clients:
+    get:
+      operationId: listClients
+      tags: [clients]
+      summary: List all clients
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of clients
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Client"
+    post:
+      operationId: createClient
+      tags: [clients]
+      summary: Create a new client
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClientInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Client"
+
+  /clients/{id}:
+    get:
+      operationId: getClient
+      tags: [clients]
+      summary: Get a single client
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Client
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Client"
+    put:
+      operationId: updateClient
+      tags: [clients]
+      summary: Update a client
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ClientInput"
+      responses:
+        "200":
+          description: Updated client
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Client"
+    delete:
+      operationId: deleteClient
+      tags: [clients]
+      summary: Delete a client
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /vehicles:
+    get:
+      operationId: listVehicles
+      tags: [vehicles]
+      summary: List all vehicles
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: List of vehicles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Vehicle"
+    post:
+      operationId: createVehicle
+      tags: [vehicles]
+      summary: Create a new vehicle
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VehicleInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vehicle"
+
+  /vehicles/{id}:
+    get:
+      operationId: getVehicle
+      tags: [vehicles]
+      summary: Get a single vehicle
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Vehicle
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vehicle"
+    put:
+      operationId: updateVehicle
+      tags: [vehicles]
+      summary: Update a vehicle
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VehicleInput"
+      responses:
+        "200":
+          description: Updated vehicle
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Vehicle"
+    delete:
+      operationId: deleteVehicle
+      tags: [vehicles]
+      summary: Delete a vehicle
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /tracking/live:
+    get:
+      operationId: getLivePositions
+      tags: [tracking]
+      summary: Get latest position for all vehicles
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Live positions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LivePosition"
+
+  /tracking/history:
+    get:
+      operationId: getPositionHistory
+      tags: [tracking]
+      summary: Get position history for a vehicle filtered by date range
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: vehicleId
+          in: query
+          required: true
+          schema:
+            type: integer
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
+      responses:
+        "200":
+          description: Position history
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Position"
+
+  /geofences:
+    get:
+      operationId: listGeofences
+      tags: [geofences]
+      summary: List all geofences
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Geofences
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Geofence"
+    post:
+      operationId: createGeofence
+      tags: [geofences]
+      summary: Create a geofence
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GeofenceInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Geofence"
+
+  /geofences/{id}:
+    put:
+      operationId: updateGeofence
+      tags: [geofences]
+      summary: Update a geofence
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/GeofenceInput"
+      responses:
+        "200":
+          description: Updated geofence
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Geofence"
+    delete:
+      operationId: deleteGeofence
+      tags: [geofences]
+      summary: Delete a geofence
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+
+  /alerts:
+    get:
+      operationId: listAlerts
+      tags: [alerts]
+      summary: List alerts
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: unreadOnly
+          in: query
+          schema:
+            type: boolean
+      responses:
+        "200":
+          description: Alerts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Alert"
+
+  /alerts/{id}/read:
+    patch:
+      operationId: markAlertRead
+      tags: [alerts]
+      summary: Mark an alert as read
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Updated alert
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Alert"
+
+  /dashboard/stats:
+    get:
+      operationId: getDashboardStats
+      tags: [dashboard]
+      summary: Get dashboard summary statistics
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Dashboard stats
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DashboardStats"
+
+  /dashboard/recent-alerts:
+    get:
+      operationId: getRecentAlerts
+      tags: [dashboard]
+      summary: Get most recent alerts for dashboard feed
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: Recent alerts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Alert"
+
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    RegisterInput:
+      type: object
+      required: [name, email, password]
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+        clientId:
+          type: ["integer", "null"]
+
+    RefreshInput:
+      type: object
+      required: [refreshToken]
+      properties:
+        refreshToken:
+          type: string
+
+    AuthResponse:
+      type: object
+      required: [accessToken, refreshToken, user]
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+
+    User:
+      type: object
+      required: [id, name, email, role, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        role:
+          type: string
+          enum: [ADMIN, CLIENT]
+        clientId:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    Client:
+      type: object
+      required: [id, name, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        document:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+        vehicleCount:
+          type: ["integer", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    ClientInput:
+      type: object
+      required: [name]
+      properties:
+        name:
+          type: string
+        document:
+          type: ["string", "null"]
+        phone:
+          type: ["string", "null"]
+
+    Vehicle:
+      type: object
+      required: [id, plate, model, imei, status, createdAt]
+      properties:
+        id:
+          type: integer
+        clientId:
+          type: ["integer", "null"]
+        clientName:
+          type: ["string", "null"]
+        plate:
+          type: string
+        model:
+          type: string
+        imei:
+          type: string
+        status:
+          type: string
+          enum: [ONLINE, OFFLINE]
+        lastPosition:
+          $ref: "#/components/schemas/Position"
+        createdAt:
+          type: string
+          format: date-time
+
+    VehicleInput:
+      type: object
+      required: [plate, model, imei]
+      properties:
+        clientId:
+          type: ["integer", "null"]
+        plate:
+          type: string
+        model:
+          type: string
+        imei:
+          type: string
+
+    Position:
+      type: object
+      required: [id, vehicleId, latitude, longitude, createdAt]
+      properties:
+        id:
+          type: integer
+        vehicleId:
+          type: integer
+        latitude:
+          type: number
+        longitude:
+          type: number
+        speed:
+          type: ["number", "null"]
+        course:
+          type: ["number", "null"]
+        ignition:
+          type: ["boolean", "null"]
+        createdAt:
+          type: string
+          format: date-time
+
+    LivePosition:
+      type: object
+      required: [vehicleId, plate, model, status, latitude, longitude, updatedAt]
+      properties:
+        vehicleId:
+          type: integer
+        plate:
+          type: string
+        model:
+          type: string
+        clientName:
+          type: ["string", "null"]
+        status:
+          type: string
+          enum: [ONLINE, OFFLINE]
+        latitude:
+          type: number
+        longitude:
+          type: number
+        speed:
+          type: ["number", "null"]
+        ignition:
+          type: ["boolean", "null"]
+        updatedAt:
+          type: string
+          format: date-time
+
+    Geofence:
+      type: object
+      required: [id, vehicleId, name, latitude, longitude, radius, createdAt]
+      properties:
+        id:
+          type: integer
+        vehicleId:
+          type: integer
+        vehiclePlate:
+          type: ["string", "null"]
+        name:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        radius:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+
+    GeofenceInput:
+      type: object
+      required: [vehicleId, name, latitude, longitude, radius]
+      properties:
+        vehicleId:
+          type: integer
+        name:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        radius:
+          type: number
+
+    Alert:
+      type: object
+      required: [id, vehicleId, type, message, read, createdAt]
+      properties:
+        id:
+          type: integer
+        vehicleId:
+          type: integer
+        vehiclePlate:
+          type: ["string", "null"]
+        type:
+          type: string
+          enum: [SPEED_LIMIT, GEOFENCE_EXIT, IGNITION_ON, IGNITION_OFF, SIGNAL_LOST]
+        message:
+          type: string
+        read:
+          type: boolean
+        createdAt:
+          type: string
+          format: date-time
+
+    DashboardStats:
+      type: object
+      required: [totalVehicles, onlineVehicles, offlineVehicles, unreadAlerts, totalClients, alertsByType]
+      properties:
+        totalVehicles:
+          type: integer
+        onlineVehicles:
+          type: integer
+        offlineVehicles:
+          type: integer
+        unreadAlerts:
+          type: integer
+        totalClients:
+          type: integer
+        alertsByType:
+          type: array
+          items:
+            type: object
+            required: [type, count]
+            properties:
+              type:
+                type: string
+              count:
+                type: integer

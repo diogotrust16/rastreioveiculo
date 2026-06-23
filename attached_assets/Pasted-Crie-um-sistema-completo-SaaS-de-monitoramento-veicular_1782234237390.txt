@@ -1,0 +1,389 @@
+Crie um sistema completo SaaS de monitoramento veicular com arquitetura moderna, escalável e organizada.
+
+Objetivo do sistema
+
+Sistema web para rastreamento de veículos em tempo real, recebendo dados GPS via TCP de rastreadores físicos (ex: TK103/TK303/J16), armazenando histórico de posições e exibindo em mapa em tempo real.
+
+O sistema deve permitir:
+
+rastreamento em tempo real
+histórico de rotas
+geofencing
+alertas automáticos
+gerenciamento de clientes
+gerenciamento de veículos
+painel administrativo
+autenticação
+multiempresa (cada cliente vê apenas seus veículos)
+STACK OBRIGATÓRIA
+
+Backend:
+
+Node.js
+Express
+Socket.IO
+PostgreSQL
+Prisma ORM
+Redis
+JWT
+bcrypt
+TCP Server nativo (net)
+Docker
+
+Frontend:
+
+React
+Vite
+TailwindCSS
+React Router
+Axios
+Socket.IO Client
+Leaflet
+Zustand
+
+Infra:
+
+Docker Compose
+Nginx
+
+Mapas:
+
+OpenStreetMap com Leaflet
+ESTRUTURA DE PASTAS (OBRIGATÓRIA)
+vehicle-monitor/
+├── backend/
+│   ├── src/
+│   │   ├── server.js
+│   │   ├── app.js
+│   │   ├── config/
+│   │   │   ├── db.js
+│   │   │   ├── redis.js
+│   │   │   ├── socket.js
+│   │   │   └── env.js
+│   │   ├── tcp/
+│   │   │   ├── trackerServer.js
+│   │   │   ├── protocolParser.js
+│   │   │   ├── handlers/
+│   │   │   └── protocols/
+│   │   ├── routes/
+│   │   │   ├── auth.routes.js
+│   │   │   ├── vehicle.routes.js
+│   │   │   ├── tracking.routes.js
+│   │   │   ├── geofence.routes.js
+│   │   │   ├── alert.routes.js
+│   │   │   └── client.routes.js
+│   │   ├── controllers/
+│   │   ├── services/
+│   │   │   ├── tracking.service.js
+│   │   │   ├── geofence.service.js
+│   │   │   ├── alert.service.js
+│   │   │   ├── vehicle.service.js
+│   │   │   └── auth.service.js
+│   │   ├── middlewares/
+│   │   ├── utils/
+│   │   └── sockets/
+│   │       └── tracking.socket.js
+│   ├── prisma/
+│   │   └── schema.prisma
+│   ├── Dockerfile
+│   ├── package.json
+│   └── .env.example
+│
+├── frontend/
+│   ├── src/
+│   │   ├── pages/
+│   │   │   ├── Login.jsx
+│   │   │   ├── Dashboard.jsx
+│   │   │   ├── Vehicles.jsx
+│   │   │   ├── Tracking.jsx
+│   │   │   ├── Alerts.jsx
+│   │   │   ├── Geofences.jsx
+│   │   │   └── Clients.jsx
+│   │   ├── components/
+│   │   ├── map/
+│   │   │   ├── LiveMap.jsx
+│   │   │   ├── VehicleMarker.jsx
+│   │   │   └── RouteHistory.jsx
+│   │   ├── services/
+│   │   ├── store/
+│   │   ├── hooks/
+│   │   ├── routes/
+│   │   └── layouts/
+│   ├── Dockerfile
+│   └── package.json
+│
+├── docker-compose.yml
+└── README.md
+MODELAGEM DO BANCO (PRISMA)
+
+Criar:
+
+users
+id
+name
+email
+password
+role
+clientId
+createdAt
+
+Roles:
+
+ADMIN
+CLIENT
+clients
+id
+name
+document
+phone
+createdAt
+vehicles
+id
+clientId
+plate
+model
+imei
+status
+createdAt
+
+Status:
+
+ONLINE
+OFFLINE
+positions
+id
+vehicleId
+latitude
+longitude
+speed
+course
+ignition
+createdAt
+geofences
+id
+vehicleId
+name
+latitude
+longitude
+radius
+createdAt
+alerts
+id
+vehicleId
+type
+message
+read
+createdAt
+
+Tipos:
+
+SPEED_LIMIT
+GEOFENCE_EXIT
+IGNITION_ON
+IGNITION_OFF
+SIGNAL_LOST
+AUTENTICAÇÃO
+
+Implementar:
+
+login com JWT
+refresh token
+hash com bcrypt
+middleware auth
+middleware role
+
+Rotas:
+
+POST /auth/login
+POST /auth/register
+POST /auth/refresh
+TCP SERVER
+
+Criar servidor TCP na porta:
+
+5001
+
+Usando:
+
+net.createServer()
+
+Receber mensagens como:
+
+imei:123456789012345,lat:-10.184,lon:-48.333,speed:60,ignition:true
+
+Parser deve converter para:
+
+{
+  "imei": "123456789012345",
+  "latitude": -10.184,
+  "longitude": -48.333,
+  "speed": 60,
+  "ignition": true
+}
+
+Fluxo:
+
+localizar veículo pelo IMEI
+salvar posição
+atualizar status ONLINE
+emitir via Socket.IO para frontend
+
+Evento:
+
+vehicle:position
+ALERTAS AUTOMÁTICOS
+
+Criar regras:
+
+excesso de velocidade
+
+Se:
+
+speed > 80
+
+Criar alerta.
+
+perda de sinal
+
+Se veículo ficar:
+
+> 5 minutos sem atualizar
+
+Criar alerta.
+
+ignição ligada/desligada
+
+Detectar mudança.
+
+geofence
+
+Se sair do raio:
+Criar alerta.
+
+Usar fórmula Haversine.
+
+API REST
+Vehicles
+GET /vehicles
+POST /vehicles
+PUT /vehicles/:id
+DELETE /vehicles/:id
+Tracking
+GET /tracking/live
+GET /tracking/history/:vehicleId
+
+Filtros:
+
+data inicial
+data final
+Alerts
+GET /alerts
+PATCH /alerts/:id/read
+Geofences
+GET /geofences
+POST /geofences
+PUT /geofences/:id
+DELETE /geofences/:id
+Clients
+GET /clients
+POST /clients
+PUT /clients/:id
+DELETE /clients/:id
+FRONTEND
+
+Criar dashboard profissional.
+
+Login
+
+Campos:
+
+email
+senha
+Dashboard
+
+Cards:
+
+veículos online
+veículos offline
+alertas ativos
+total de clientes
+
+Mapa ao vivo.
+
+Tela Tracking
+
+Mostrar:
+
+mapa em tempo real
+marcador do veículo
+velocidade
+status
+última atualização
+Histórico
+
+Selecionar:
+
+veículo
+período
+
+Mostrar:
+
+rota desenhada
+pontos visitados
+Alertas
+
+Lista:
+
+tipo
+veículo
+data
+status lido
+Geofences
+
+Criar círculos no mapa.
+
+SOCKET.IO
+
+Backend envia:
+
+vehicle:position
+vehicle:alert
+vehicle:status
+
+Frontend escuta e atualiza mapa instantaneamente.
+
+REDIS
+
+Usar para:
+
+cache de última posição
+fila de alertas
+REGRAS IMPORTANTES
+código limpo
+arquitetura modular
+sem arquivos incompletos
+sem comentários genéricos
+gerar TODOS os arquivos completos
+gerar backend completo
+gerar frontend completo
+gerar schema Prisma completo
+gerar docker-compose funcional
+gerar README com setup
+usar boas práticas
+pronto para rodar localmente
+
+Gerar tudo em ordem:
+
+backend
+banco
+tcp server
+alertas
+frontend
+docker-compose
+README
+seed inicial com admin padrão
+
+Admin padrão:
+
+email: admin@monitor.com
+senha: 123456
