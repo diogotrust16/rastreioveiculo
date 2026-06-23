@@ -187,7 +187,7 @@ export default function Geofences() {
       </div>
 
       {/* Map */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative" style={{ isolation: 'isolate' }}>
         {picking && (
           <div className="absolute top-4 left-1/2 -translate-x-1/2 z-[1000] bg-primary text-primary-foreground px-4 py-2 rounded-full text-sm shadow-lg flex items-center gap-2">
             <MapPin className="w-4 h-4" /> Clique no mapa para definir o centro da geocerca
